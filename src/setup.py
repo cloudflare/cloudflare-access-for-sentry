@@ -13,6 +13,8 @@ with open("README.md", "r") as fh:
 
 install_requires = [
     "sentry>=8.0.0",
+    "PyJWT==1.7.*",
+    "requests==2.16.*"
 ]
 
 setuptools.setup(

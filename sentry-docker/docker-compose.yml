@@ -137,6 +137,8 @@ services:
       - 'sentry-symbolicator:/data'
   web:
     << : *sentry_defaults
+    env_file:
+      - sentry.env
     ports:
       - '9000:9000/tcp'
   cron:

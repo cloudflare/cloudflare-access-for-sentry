@@ -76,3 +76,4 @@ data/
 sentry/sentry.conf.py
 sentry/config.yml
 sentry/requirements.txt
+sentry.env
