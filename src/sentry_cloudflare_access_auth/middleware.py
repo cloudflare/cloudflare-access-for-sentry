@@ -10,6 +10,9 @@ from django.http import HttpResponse
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel('DEBUG')
+
+static_resources_extension = ["js", "css", "png", "jpg", "jpeg", "woff", "ttf"]
 
 class CloudflareAccessAuthMiddleware:
     _certs_url = "https://{}/cdn-cgi/access/certs".format(settings.CLOUDFLARE_ACCESS_AUTH_DOMAIN)
@@ -24,21 +27,22 @@ class CloudflareAccessAuthMiddleware:
 
     def process_request(self, request):
         logger.debug("Handling request...")
-        logger.debug(request.COOKIES)
+
+        if self._proceed_with_token_verification(request):
+            token = self._get_token_payload_from_request(request)
+            logger.debug("Token payload:")
+            logger.debug(token)
+
+            if token == None:
+                #TODO where should it go? custom error page? login page?
+                return HttpResponse('<h1>no token :(</h1>')
+    
+            user_email = token[u'email']
+            logger.info("Token user_email: %s", user_email)
         
-        token = self._get_token_payload_from_request(request)
-        logger.debug("Token payload:")
-        logger.debug(token)
+        #continue to next middleware
+        return None
 
-        if token == None:
-            #TODO where should it go? custom error page? login page?
-            return HttpResponse('<h1>no token :(</h1>')
-   
-        user_email = token[u'email']
-        logger.info("Token user_email: %s", user_email)
-        #response = self.get_response(request)
-
-        return HttpResponse('<h1>middleware works ;)</h1>')
 
     def _get_token_payload_from_request(self, request):
         """
@@ -74,3 +78,17 @@ class CloudflareAccessAuthMiddleware:
             public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key_dict))
             public_keys.append(public_key)
         return public_keys
+
+    def _proceed_with_token_verification(self, request):
+        mandatory_settings = [settings.CLOUDFLARE_ACCESS_POLICY_AUD, settings.CLOUDFLARE_ACCESS_AUTH_DOMAIN]
+        if None in mandatory_settings:
+            logger.error("Middleware not configured, CLOUDFLARE_ACCESS_POLICY_AUD={0} CLOUDFLARE_ACCESS_AUTH_DOMAIN={1}".format(*mandatory_settings))
+            return False
+        
+        extension = request.path.split(".")[-1]
+        logger.debug("Testing extension: {0} (path: {1})".format(*[extension, request.get_full_path()]))
+        if extension in static_resources_extension:
+            logger.debug("Skipping middleware for static resources, extension: %s" % extension)
+            return False
+
+        return True
