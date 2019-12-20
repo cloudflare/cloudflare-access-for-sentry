@@ -7,6 +7,7 @@ import json
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.contrib.auth import authenticate
 
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,9 @@ class CloudflareAccessAuthMiddleware:
     
             user_email = token[u'email']
             logger.info("Token user_email: %s", user_email)
+            user = authenticate(email=user_email, jwt_validated=True)
+            logger.info("Authenticated user: %s", user.username)
+        
         
         #continue to next middleware
         return None

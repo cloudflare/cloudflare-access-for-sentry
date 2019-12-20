@@ -1,35 +1,48 @@
 from __future__ import absolute_import
 
-# from django.conf import settings
-# from django.contrib.auth.hashers import check_password
-# from django.contrib.auth.models import User
-# from django.contrib.auth.backends import ModelBackend
+import logging
 
-# class CloudflareAccessBackend(ModelBackend):
-#     """
-#     Authenticate using
+from django.conf import settings
+from django.contrib.auth.backends import ModelBackend
+from sentry.utils.auth import find_users
 
-#     Use the authentication information from the request to authenticate a user
-#     by e-mail.
-#     """
+logger = logging.getLogger(__name__)
+logger.setLevel('DEBUG')
 
-#     def authenticate(self, request, username=None, password=None):
-#         login_valid = ("test" == username)
-#         if login_valid:
-#             try:
-#                 user = User.objects.get(username=username)
-#             except User.DoesNotExist:
-#                 # Create a new user. There's no need to set a password
-#                 # because only the password from settings.py is checked.
-#                 user = User(username=username)
-#                 user.is_staff = True
-#                 user.is_superuser = True
-#                 user.save()
-#             return user
-#         return None
+class CloudflareAccessBackend(ModelBackend):
+    """
+    Authenticate a user by the e-mail and the flag indicating it was a valid token
+    """
+    def authenticate(self, email=None, jwt_validated=False):
+        logger.debug("TRYING TO AUTH WITH CloudflareAccessBackend ...")
 
-#     def get_user(self, user_id):
-#         try:
-#             return User.objects.get(pk=user_id)
-#         except User.DoesNotExist:
-#             return None
+        if email == None or jwt_validated == False:
+            return None
+
+        users = find_users(email)
+
+        logger.debug("Users found: %s", [u.username for u in users])
+
+        if len(users) > 1:
+            #TODO should give an error?
+            return None 
+
+        if self._enforce_standard_auth(email):
+            logger.debug("Enforcing standard auth...")
+            return None 
+
+        logger.debug("Auth successful for user: %s", users[0].username)
+        return users[0]
+
+    def user_can_authenticate(self, user):
+        return True
+
+    def _enforce_standard_auth(self, email):
+        configured = settings.CLOUDFLARE_ACCESS_ALLOWED_DOMAIN != None
+
+        if configured:
+            domain = email.split("@")[-1]
+            if domain != settings.CLOUDFLARE_ACCESS_ALLOWED_DOMAIN:
+                return True
+
+        return False
