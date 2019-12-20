@@ -8,7 +8,14 @@ TODO: document setup for users
 
 ## Plugin Development
 
-Prepare your Sentry on Docker environment first:
+Prepare your python environment:
+
+```
+pip install setuptools
+pip install wheel
+```
+
+Prepare your Sentry on Docker environment:
 
 ```
 cd sentry-docker
