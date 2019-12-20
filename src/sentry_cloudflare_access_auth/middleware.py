@@ -10,6 +10,19 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate
 
 
+def setup_middleware(MIDDLEWARE_CLASSES):
+    """
+    Includes the Cloudflare Access Middleware right after the Authetication Middleware
+    """
+    updated_tuple = ()
+    for middleware in MIDDLEWARE_CLASSES:
+        updated_tuple = updated_tuple + (middleware,)
+        if middleware.split(".")[-1] == 'AuthenticationMiddleware':
+            updated_tuple = updated_tuple + ('sentry_cloudflare_access_auth.CloudflareAccessAuthMiddleware',)
+    return updated_tuple
+
+
+
 logger = logging.getLogger(__name__)
 logger.setLevel('DEBUG')
 
@@ -42,6 +55,8 @@ class CloudflareAccessAuthMiddleware:
             logger.info("Token user_email: %s", user_email)
             user = authenticate(email=user_email, jwt_validated=True)
             logger.info("Authenticated user: %s", user.username)
+
+            login(request, user)
         
         
         #continue to next middleware

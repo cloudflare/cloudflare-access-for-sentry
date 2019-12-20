@@ -31,8 +31,15 @@ class CloudflareAccessBackend(ModelBackend):
             logger.debug("Enforcing standard auth...")
             return None 
 
-        logger.debug("Auth successful for user: %s", users[0].username)
-        return users[0]
+        user = users[0]
+        logger.debug("Auth successful for user: %s", user.username)
+
+        if not user.is_active:
+            logger.debug("User is not active: %s", user.username)
+            return None
+
+
+        return user
 
     def user_can_authenticate(self, user):
         return True
