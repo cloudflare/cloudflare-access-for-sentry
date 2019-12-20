@@ -1,9 +1,10 @@
 # priv_cloudlare_access_sentry
 
-
 Temporary repository for cloudflareacces Sentry plugin development.
 
 ## Install on your On-Premise Sentry instance
+
+TODO: document setup for users
 
 ## Plugin Development
 
@@ -22,3 +23,6 @@ To reload the plugin code:
 ./build-docker.sh
 ```
 
+### Django
+
+Note that Sentry is based on `Django 1.9` .
