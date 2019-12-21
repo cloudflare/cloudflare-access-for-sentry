@@ -8,11 +8,17 @@ TODO: document setup for users
 
 ## Plugin Development
 
-Prepare your python environment:
+Prepare your python environment to build the plugin:
 
 ```
 pip install setuptools
 pip install wheel
+```
+
+If you want to have code completion on your IDE probably is a good idea to also run:
+
+```
+pip install 'django<1.10'
 ```
 
 Prepare your Sentry on Docker environment:
@@ -20,7 +26,6 @@ Prepare your Sentry on Docker environment:
 ```
 cd sentry-docker
 ./install.sh
-# TODO something more is needed between...
 docker-compose up -d
 ```
 
