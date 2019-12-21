@@ -7,10 +7,10 @@ import json
 
 from django.conf import settings
 from django.http import HttpResponse
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 
 
-def setup_middleware(MIDDLEWARE_CLASSES):
+def setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES):
     """
     Includes the Cloudflare Access Middleware right after the Authetication Middleware
     """
@@ -18,7 +18,7 @@ def setup_middleware(MIDDLEWARE_CLASSES):
     for middleware in MIDDLEWARE_CLASSES:
         updated_tuple = updated_tuple + (middleware,)
         if middleware.split(".")[-1] == 'AuthenticationMiddleware':
-            updated_tuple = updated_tuple + ('sentry_cloudflare_access_auth.CloudflareAccessAuthMiddleware',)
+            updated_tuple = updated_tuple + (__name__ + ".CloudflareAccessAuthMiddleware",)
     return updated_tuple
 
 

@@ -3,6 +3,8 @@
 
 import os
 from sentry.conf.server import *  # NOQA
+from sentry_cloudflare_access_auth.middleware import setup_cloudflare_access_middleware
+
 
 DATABASES = {
     "default": {
@@ -234,9 +236,10 @@ CSRF_COOKIE_SECURE = True
 ####################################################
 # Cloudflare Access Plugin Setup and Configuration #
 ####################################################
-MIDDLEWARE_CLASSES = (
-    'sentry_cloudflare_access_auth.middleware.CloudflareAccessAuthMiddleware',
-) + MIDDLEWARE_CLASSES
+print("initial", MIDDLEWARE_CLASSES)
+MIDDLEWARE_CLASSES = setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES)
+print("####################################################")
+print("after", MIDDLEWARE_CLASSES)
 
 AUTHENTICATION_BACKENDS = (
     'sentry_cloudflare_access_auth.backend.CloudflareAccessBackend',
