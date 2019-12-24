@@ -5,22 +5,11 @@ import requests
 import jwt
 import json
 
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
-
-
-def setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES):
-    """
-    Includes the Cloudflare Access Middleware right after the Authetication Middleware
-    """
-    updated_tuple = ()
-    for middleware in MIDDLEWARE_CLASSES:
-        updated_tuple = updated_tuple + (middleware,)
-        if middleware.split(".")[-1] == 'AuthenticationMiddleware':
-            updated_tuple = updated_tuple + (__name__ + ".CloudflareAccessAuthMiddleware",)
-    return updated_tuple
-
+from sentry.web.helpers import render_to_response
 
 
 logger = logging.getLogger(__name__)
@@ -49,7 +38,8 @@ class CloudflareAccessAuthMiddleware:
 
             if token == None:
                 #TODO where should it go? custom error page? login page?
-                return HttpResponse('<h1>no token :(</h1>')
+                context = {"message": "test"}
+                return render_to_response("cloudflareaccess/error.html", context=context, request=request)
     
             user_email = token[u'email']
             logger.info("Token user_email: %s", user_email)

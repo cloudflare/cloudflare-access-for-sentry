@@ -3,7 +3,7 @@
 
 import os
 from sentry.conf.server import *  # NOQA
-from sentry_cloudflare_access_auth.middleware import setup_cloudflare_access_middleware
+from sentry_cloudflare_access_auth.helper import setup_cloudflare_access_middleware, get_cloudflare_access_os_root
 
 
 DATABASES = {
@@ -236,10 +236,7 @@ CSRF_COOKIE_SECURE = True
 ####################################################
 # Cloudflare Access Plugin Setup and Configuration #
 ####################################################
-print("initial", MIDDLEWARE_CLASSES)
 MIDDLEWARE_CLASSES = setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES)
-print("####################################################")
-print("after", MIDDLEWARE_CLASSES)
 
 AUTHENTICATION_BACKENDS = (
     'sentry_cloudflare_access_auth.backend.CloudflareAccessBackend',
@@ -251,3 +248,7 @@ CLOUDFLARE_ACCESS_AUTH_DOMAIN = os.getenv("CF_AUTH_DOMAIN")
 # Emails that match this domain will authorize with their Access JWT. 
 # All other emails will be required authorize again with their Sentry credentials.
 CLOUDFLARE_ACCESS_ALLOWED_DOMAIN = None
+
+CLOUDFLARE_ACCESS_PLUGIN_ROOT = get_cloudflare_access_os_root()
+print("CLOUDFLARE_ACCESS_PLUGIN_ROOT:", CLOUDFLARE_ACCESS_PLUGIN_ROOT)
+TEMPLATES[0]['DIRS'] += [os.path.join(CLOUDFLARE_ACCESS_PLUGIN_ROOT, "templates")]
