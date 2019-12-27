@@ -11,6 +11,8 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 from sentry.web.helpers import render_to_response
 
+from sentry_cloudflare_access_auth.backend import MultipleUsersMatchingEmailException, UserIsNotActiveException
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel('DEBUG')
@@ -32,23 +34,38 @@ class CloudflareAccessAuthMiddleware:
         logger.debug("Handling request...")
 
         if self._proceed_with_token_verification(request):
-            token = self._get_token_payload_from_request(request)
-            logger.debug("Token payload:")
-            logger.debug(token)
+            try:
+                token = self._get_token_payload_from_request(request)
+            except JWTValidationException as e:
+                return self.render_error(request, e.message)
+            else:
+                logger.debug("Token payload:")
+                logger.debug(token)
 
             if token == None:
-                #TODO where should it go? custom error page? login page?
-                context = {"message": "test"}
-                return render_to_response("cloudflareaccess/error.html", context=context, request=request)
+                logger.debug("JWT token not present, bypassing auth process: %s", request.get_full_path())
+                return None
+
+            #TODO bypass already authenticated
+            #TODO bypass auth headers
     
             user_email = token[u'email']
             logger.info("Token user_email: %s", user_email)
-            user = authenticate(email=user_email, jwt_validated=True)
-            logger.info("Authenticated user: %s", user.username)
+            try:
+                user = authenticate(email=user_email, jwt_validated=True)
+            except MultipleUsersMatchingEmailException as e1:
+                return self.render_error(request, (
+                    "More than one user matches the email %s" % user_email
+                ))
+            except UserIsNotActiveException as e2:
+                return self.render_error(request, (
+                    "The user is currently disabled"
+                ))
+            else:
+                if not user == None:
+                    logger.info("Authenticated user: %s", user.username)
+                    login(request, user)
 
-            login(request, user)
-        
-        
         #continue to next middleware
         return None
 
@@ -70,8 +87,8 @@ class CloudflareAccessAuthMiddleware:
             try:
                 t = jwt.decode(token, key=key, audience=settings.CLOUDFLARE_ACCESS_POLICY_AUD)
                 return t
-            except:
-                pass
+            except Exception as e:
+                raise JWTValidationException("Unable to validate JWT: %s" % e.message)
 
         return None
 
@@ -101,3 +118,10 @@ class CloudflareAccessAuthMiddleware:
             return False
 
         return True
+    
+    def render_error(self, request, message):
+        context = {"message": message}
+        return render_to_response("cloudflareaccess/error.html", context=context, request=request)
+
+class JWTValidationException(Exception):
+    pass

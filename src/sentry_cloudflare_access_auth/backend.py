@@ -23,9 +23,13 @@ class CloudflareAccessBackend(ModelBackend):
 
         logger.debug("Users found: %s", [u.username for u in users])
 
+        if len(users) == 0:
+            logger.debug("User not found, maybe registration step...")
+            return None
+
         if len(users) > 1:
-            #TODO should give an error?
-            return None 
+            logger.debug("More than one user matches '%s': %s", email, len(users))
+            raise MultipleUsersMatchingEmailException("Found {0} users that match the email {1}!".format(len(users), email))
 
         if self._enforce_standard_auth(email):
             logger.debug("Enforcing standard auth...")
@@ -36,7 +40,7 @@ class CloudflareAccessBackend(ModelBackend):
 
         if not user.is_active:
             logger.debug("User is not active: %s", user.username)
-            return None
+            raise UserIsNotActiveException("User %s is not active!" % user.username)
 
 
         return user
@@ -53,3 +57,10 @@ class CloudflareAccessBackend(ModelBackend):
                 return True
 
         return False
+
+
+class MultipleUsersMatchingEmailException(Exception):
+    pass
+
+class UserIsNotActiveException(Exception):
+    pass
