@@ -27,8 +27,6 @@ class CloudflareAccessAuthMiddleware:
         self.get_response = get_response
         logger.info("CloudflareAccessAuthMiddleware initialized")
         logger.info("Certificates URL: %s", self._certs_url)
-        
-        # One-time configuration and initialization.
 
     def process_request(self, request):
         logger.debug("Handling request...")
@@ -38,19 +36,21 @@ class CloudflareAccessAuthMiddleware:
                 token = self._get_token_payload_from_request(request)
             except JWTValidationException as e:
                 return self.render_error(request, e.message)
-            else:
-                logger.debug("Token payload:")
-                logger.debug(token)
 
             if token == None:
                 logger.debug("JWT token not present, bypassing auth process: %s", request.get_full_path())
                 return None
 
-            #TODO bypass already authenticated
-            #TODO bypass auth headers
-    
+            
             user_email = token[u'email']
             logger.info("Token user_email: %s", user_email)
+
+            if self.is_already_authenticated(request, user_email):
+                return None
+            
+            
+            #TODO bypass auth headers
+    
             try:
                 user = authenticate(email=user_email, jwt_validated=True)
             except MultipleUsersMatchingEmailException as e1:
@@ -86,6 +86,8 @@ class CloudflareAccessAuthMiddleware:
         for key in keys:
             try:
                 t = jwt.decode(token, key=key, audience=settings.CLOUDFLARE_ACCESS_POLICY_AUD)
+                logger.debug("Token payload:")
+                logger.debug(t)
                 return t
             except Exception as e:
                 raise JWTValidationException("Unable to validate JWT: %s" % e.message)
@@ -119,6 +121,15 @@ class CloudflareAccessAuthMiddleware:
 
         return True
     
+    def is_already_authenticated(self, request, user_email):
+        if request.user == None:
+            return False
+
+        if request.user.username != user_email:
+            return False
+
+        return True
+
     def render_error(self, request, message):
         context = {"message": message}
         return render_to_response("cloudflareaccess/error.html", context=context, request=request)
