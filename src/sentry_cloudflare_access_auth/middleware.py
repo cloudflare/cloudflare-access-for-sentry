@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
+from django.shortcuts import redirect
 from sentry.web.helpers import render_to_response
 
 from sentry_cloudflare_access_auth.backend import MultipleUsersMatchingEmailException, UserIsNotActiveException
@@ -17,6 +18,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel('DEBUG')
 
 static_resources_extension = ["js", "css", "png", "jpg", "jpeg", "woff", "ttf"]
+
+cf_sentry_logout_cookie_name = "cf_sentry_logout"
 
 class CloudflareAccessAuthMiddleware:
     _certs_url = "https://{}/cdn-cgi/access/certs".format(settings.CLOUDFLARE_ACCESS_AUTH_DOMAIN)
@@ -29,6 +32,12 @@ class CloudflareAccessAuthMiddleware:
 
     def process_request(self, request):
         logger.debug("Handling request...")
+
+        if self._should_redirect_to_logout(request):
+            redirect_response = redirect("/cdn-cgi/access/logout")
+            redirect_response.delete_cookie(cf_sentry_logout_cookie_name)
+            return redirect_response
+
 
         if self._proceed_with_token_verification(request):
             try:
@@ -71,6 +80,17 @@ class CloudflareAccessAuthMiddleware:
         return None
 
 
+    def process_response(self, request, response):
+        logger.debug("response: %s - %s", request.method, request.path)
+        if request.path == "/api/0/auth/" and request.method == 'DELETE':
+            response.set_cookie(cf_sentry_logout_cookie_name, "1")
+        return response
+
+
+    def _should_redirect_to_logout(self, request):
+        return cf_sentry_logout_cookie_name in request.COOKIES and request.COOKIES[cf_sentry_logout_cookie_name] == "1"
+
+
     def _proceed_with_token_verification(self, request):
         mandatory_settings = [settings.CLOUDFLARE_ACCESS_POLICY_AUD, settings.CLOUDFLARE_ACCESS_AUTH_DOMAIN]
         if None in mandatory_settings:
@@ -84,6 +104,7 @@ class CloudflareAccessAuthMiddleware:
             return False
 
         return True
+
 
     def _get_token_payload_from_request(self, request):
         """
