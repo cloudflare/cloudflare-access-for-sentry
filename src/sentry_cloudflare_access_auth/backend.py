@@ -42,25 +42,32 @@ class CloudflareAccessBackend(ModelBackend):
             logger.debug("User is not active: %s", user.username)
             raise UserIsNotActiveException("User %s is not active!" % user.username)
 
-
         return user
+
+
 
     def user_can_authenticate(self, user):
         return True
 
-    def _enforce_standard_auth(self, email):
-        configured = settings.CLOUDFLARE_ACCESS_ALLOWED_DOMAIN != None
 
-        if configured:
-            domain = email.split("@")[-1]
-            if domain != settings.CLOUDFLARE_ACCESS_ALLOWED_DOMAIN:
-                return True
+
+    def _enforce_standard_auth(self, email):
+        try:
+            configured = settings.CLOUDFLARE_ACCESS_ALLOWED_DOMAIN != None
+        except AttributeError:
+            pass
+        else:
+            if configured:
+                domain = email.split("@")[-1]
+                if domain != settings.CLOUDFLARE_ACCESS_ALLOWED_DOMAIN:
+                    return True
 
         return False
 
 
 class MultipleUsersMatchingEmailException(Exception):
     pass
+
 
 class UserIsNotActiveException(Exception):
     pass

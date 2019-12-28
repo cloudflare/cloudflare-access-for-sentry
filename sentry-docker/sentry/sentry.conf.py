@@ -247,7 +247,7 @@ CLOUDFLARE_ACCESS_AUTH_DOMAIN = os.getenv("CF_AUTH_DOMAIN")
 
 # Emails that match this domain will authorize with their Access JWT. 
 # All other emails will be required authorize again with their Sentry credentials.
-CLOUDFLARE_ACCESS_ALLOWED_DOMAIN = None
+#CLOUDFLARE_ACCESS_ALLOWED_DOMAIN = None
 
 CLOUDFLARE_ACCESS_PLUGIN_ROOT = get_cloudflare_access_os_root()
 TEMPLATES[0]['DIRS'] += [os.path.join(CLOUDFLARE_ACCESS_PLUGIN_ROOT, "templates")]
