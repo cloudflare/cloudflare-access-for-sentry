@@ -25,7 +25,7 @@ setuptools.setup(
     description="An extension for Sentry which authenticates users previously authenticated through Cloudflare Access.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/felipebn/priv_cloudlare_access_sentry",
+    url="https://github.com/cloudflare/cloudflare-access-for-sentry",
     packages=setuptools.find_packages(),
     package_data={'': ['templates/*.html']},
     include_package_data=True,
