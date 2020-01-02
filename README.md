@@ -1,6 +1,6 @@
-# priv_cloudlare_access_sentry
+# Cloudflare Access for Sentry
 
-Temporary repository for cloudflareacces Sentry plugin development.
+Repository for Cloudflare Access for Sentry plugin development.
 
 ## Install on your On-Premise Sentry instance
 
