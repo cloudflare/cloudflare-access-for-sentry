@@ -7,13 +7,12 @@ from django.contrib.auth.backends import ModelBackend
 from sentry.utils.auth import find_users
 
 logger = logging.getLogger(__name__)
-logger.setLevel('DEBUG')
 
 class CloudflareAccessBackend(ModelBackend):
-    """
-    Authenticate a user by the e-mail and the flag indicating it was a valid token
-    """
     def authenticate(self, email=None, jwt_validated=False):
+        """
+        Authenticate a user by the e-mail and the flag indicating it was a valid token
+        """
         logger.debug("TRYING TO AUTH WITH CloudflareAccessBackend ...")
 
         if email == None or jwt_validated == False:

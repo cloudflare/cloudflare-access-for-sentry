@@ -15,7 +15,6 @@ from sentry.web.helpers import render_to_response
 from sentry_cloudflare_access_auth.backend import MultipleUsersMatchingEmailException, UserIsNotActiveException
 
 logger = logging.getLogger(__name__)
-logger.setLevel('DEBUG')
 
 static_resources_extension = ["js", "css", "png", "jpg", "jpeg", "woff", "ttf"]
 
@@ -29,7 +28,7 @@ class CloudflareAccessAuthMiddleware:
         self.get_response = get_response
         logger.info("CloudflareAccessAuthMiddleware initialized")
         logger.info("Certificates URL: %s", self._certs_url)
-        
+
 
     def process_request(self, request):
         logger.debug("Handling request...")
