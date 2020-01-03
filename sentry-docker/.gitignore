@@ -75,5 +75,5 @@ data/
 # custom Sentry config
 sentry/sentry.conf.py
 sentry/config.yml
-sentry/requirements.txt
+sentry/*.whl
 sentry.env

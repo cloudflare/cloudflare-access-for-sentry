@@ -11,6 +11,9 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open("../VERSION", "r") as fh:
+    version = fh.read()
+
 install_requires = [
     "sentry>=8.0.0",
     "PyJWT==1.7.*",
@@ -19,7 +22,7 @@ install_requires = [
 
 setuptools.setup(
     name="sentry-cloudflare-access-auth", # Replace with your own username
-    version="0.0.1",
+    version=version,
     author="Felipe Nascimento",
     author_email="felipe.nascimento1@gmail.com",
     description="An extension for Sentry which authenticates users previously authenticated through Cloudflare Access.",
