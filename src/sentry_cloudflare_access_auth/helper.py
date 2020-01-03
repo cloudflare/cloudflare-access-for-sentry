@@ -2,6 +2,18 @@ from __future__ import absolute_import
 
 import os
 
+def setup_cloudflare_access_for_sentry(MIDDLEWARE_CLASSES, AUTHENTICATION_BACKENDS, TEMPLATES):
+    MIDDLEWARE_CLASSES = setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES)
+    
+    AUTHENTICATION_BACKENDS = (
+        'sentry_cloudflare_access_auth.backend.CloudflareAccessBackend',
+    ) + AUTHENTICATION_BACKENDS
+
+    TEMPLATES[0]['DIRS'] += [os.path.join(get_cloudflare_access_os_root(), "templates")]
+
+    return MIDDLEWARE_CLASSES, AUTHENTICATION_BACKENDS, TEMPLATES
+    
+
 def setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES):
     """
     Includes the Cloudflare Access Middleware right after the Authetication Middleware

@@ -3,7 +3,7 @@
 
 import os
 from sentry.conf.server import *  # NOQA
-from sentry_cloudflare_access_auth.helper import setup_cloudflare_access_middleware, get_cloudflare_access_os_root
+from sentry_cloudflare_access_auth.helper import setup_cloudflare_access_for_sentry
 
 
 DATABASES = {
@@ -236,11 +236,7 @@ CSRF_COOKIE_SECURE = True
 ####################################################
 # Cloudflare Access Plugin Setup and Configuration #
 ####################################################
-MIDDLEWARE_CLASSES = setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES)
-
-AUTHENTICATION_BACKENDS = (
-    'sentry_cloudflare_access_auth.backend.CloudflareAccessBackend',
-) + AUTHENTICATION_BACKENDS
+MIDDLEWARE_CLASSES, AUTHENTICATION_BACKENDS, TEMPLATES = setup_cloudflare_access_for_sentry(MIDDLEWARE_CLASSES, AUTHENTICATION_BACKENDS, TEMPLATES)
 
 CLOUDFLARE_ACCESS_POLICY_AUD = os.getenv("CF_POLICY_AUD")
 CLOUDFLARE_ACCESS_AUTH_DOMAIN = os.getenv("CF_AUTH_DOMAIN")
@@ -249,5 +245,4 @@ CLOUDFLARE_ACCESS_AUTH_DOMAIN = os.getenv("CF_AUTH_DOMAIN")
 # All other emails will be required authorize again with their Sentry credentials.
 #CLOUDFLARE_ACCESS_ALLOWED_DOMAIN = None
 
-CLOUDFLARE_ACCESS_PLUGIN_ROOT = get_cloudflare_access_os_root()
-TEMPLATES[0]['DIRS'] += [os.path.join(CLOUDFLARE_ACCESS_PLUGIN_ROOT, "templates")]
+
