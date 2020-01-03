@@ -29,6 +29,7 @@ class CloudflareAccessAuthMiddleware:
         self.get_response = get_response
         logger.info("CloudflareAccessAuthMiddleware initialized")
         logger.info("Certificates URL: %s", self._certs_url)
+        
 
     def process_request(self, request):
         logger.debug("Handling request...")
@@ -49,14 +50,15 @@ class CloudflareAccessAuthMiddleware:
                 logger.debug("JWT token not present, bypassing auth process: %s", request.get_full_path())
                 return None
 
+            if u'common_name' in token and token[u'common_name']:
+                logger.debug("JWT token contains common_name, bypassing auth process for service token: %s", request.get_full_path())
+                return None
             
-            user_email = token[u'email']
+            user_email = "" if not u'email' in token else token[u'email']
             logger.info("Token user_email: %s", user_email)
 
             if self._is_already_authenticated(request, user_email):
                 return None
-            
-            #TODO bypass auth headers
             
             if self._should_go_to_login_form(request):
                 return None
