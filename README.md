@@ -39,6 +39,8 @@ If you want to have code completion on your IDE probably is a good idea to also 
 pip install 'django<1.10'
 ```
 
+Create a `sentry-docker/sentry.env` file with your Cloudflare Access test credentials based on the `sentry-docker/sentry.example.env`.
+
 Prepare your Sentry on Docker environment:
 
 ```
@@ -53,6 +55,6 @@ To reload the plugin code:
 ./build-docker.sh
 ```
 
-### Django
+### Django version
 
 Note that Sentry is based on `Django 1.9` .
