@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import os
 
-def setup_cloudflare_access_for_sentry(MIDDLEWARE_CLASSES, AUTHENTICATION_BACKENDS, TEMPLATES):
+def setup_cloudflare_access_for_sentry_10x(MIDDLEWARE_CLASSES, AUTHENTICATION_BACKENDS, TEMPLATES):
     MIDDLEWARE_CLASSES = setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES)
     
     AUTHENTICATION_BACKENDS = (
@@ -13,6 +13,19 @@ def setup_cloudflare_access_for_sentry(MIDDLEWARE_CLASSES, AUTHENTICATION_BACKEN
 
     return MIDDLEWARE_CLASSES, AUTHENTICATION_BACKENDS, TEMPLATES
     
+
+def setup_cloudflare_access_for_sentry_9x(MIDDLEWARE_CLASSES, AUTHENTICATION_BACKENDS, TEMPLATE_DIRS):
+    MIDDLEWARE_CLASSES = setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES)
+    
+    AUTHENTICATION_BACKENDS = (
+        'sentry_cloudflare_access_auth.backend.CloudflareAccessBackend',
+    ) + AUTHENTICATION_BACKENDS
+
+    TEMPLATE_DIRS += (os.path.join(get_cloudflare_access_os_root(), "templates"),)
+
+    return MIDDLEWARE_CLASSES, AUTHENTICATION_BACKENDS, TEMPLATE_DIRS
+
+
 
 def setup_cloudflare_access_middleware(MIDDLEWARE_CLASSES):
     """
