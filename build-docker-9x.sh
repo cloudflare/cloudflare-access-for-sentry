@@ -4,7 +4,7 @@ set -e
 VERSION=`head VERSION`
 WHL_FILENAME=sentry_cloudflare_access_auth-$VERSION-py2-none-any.whl
 TARGET_WHL_FILENAME=sentry_cloudflare_access_auth-dev-py2-none-any.whl
-SENTRY_DC_PREFIX=sentry-docker-10x
+SENTRY_DC_PREFIX=sentry-docker-9x
 
 cd src 
 
