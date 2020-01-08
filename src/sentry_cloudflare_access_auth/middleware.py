@@ -34,9 +34,7 @@ class CloudflareAccessAuthMiddleware:
         logger.debug("Handling request...")
 
         if self._should_redirect_to_logout(request):
-            redirect_response = redirect("/cdn-cgi/access/logout")
-            redirect_response.delete_cookie(cf_sentry_logout_cookie_name)
-            return redirect_response
+            return self._redirect_to_logout(request)
 
 
         if self._proceed_with_token_verification(request):
@@ -91,6 +89,13 @@ class CloudflareAccessAuthMiddleware:
     def _should_redirect_to_logout(self, request):
         return cf_sentry_logout_cookie_name in request.COOKIES and request.COOKIES[cf_sentry_logout_cookie_name] == "1"
 
+
+    def _redirect_to_logout(self, request):
+        logout_absolute_url = request.build_absolute_uri("/cdn-cgi/access/logout").replace("http://", "https://")
+        logger.info("redirecting to: %s" % logout_absolute_url)
+        redirect_response = redirect(logout_absolute_url)
+        redirect_response.delete_cookie(cf_sentry_logout_cookie_name)
+        return redirect_response
 
     def _proceed_with_token_verification(self, request):
         mandatory_settings = [settings.CLOUDFLARE_ACCESS_POLICY_AUD, settings.CLOUDFLARE_ACCESS_AUTH_DOMAIN]

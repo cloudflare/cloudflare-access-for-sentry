@@ -8,7 +8,7 @@
 ###############
 
 # mail.backend: 'smtp'  # Use dummy if you want to disable email entirely
-mail.host: 'smtp'
+# mail.host: 'localhost'
 # mail.port: 25
 # mail.username: ''
 # mail.password: ''
@@ -17,14 +17,13 @@ mail.host: 'smtp'
 # mail.from: 'root@localhost'
 
 # If you'd like to configure email replies, enable this.
-# mail.enable-replies: true
+# mail.enable-replies: false
 
 # When email-replies are enabled, this value is used in the Reply-To header
 # mail.reply-hostname: ''
 
 # If you're using mailgun for inbound mail, set your API key and configure a
 # route to forward to /api/hooks/mailgun/inbound/
-# Also don't forget to set `mail.enable-replies: true` above.
 # mail.mailgun-api-key: ''
 
 ###################
@@ -34,7 +33,7 @@ mail.host: 'smtp'
 # If this file ever becomes compromised, it's important to regenerate your a new key
 # Changing this value will result in all current sessions being invalidated.
 # A new key can be generated with `$ sentry config generate-secret-key`
-system.secret-key: 'qMg6gswb#3\q[db@ge::GrYlL9spO_:+Pkbl&>IO)W?P)Aj^KC'
+# system.secret-key: 'changeme'
 
 # The ``redis.clusters`` setting is used, unsurprisingly, to configure Redis
 # clusters. These clusters can be then referred to by name when configuring
@@ -53,21 +52,12 @@ system.secret-key: 'qMg6gswb#3\q[db@ge::GrYlL9spO_:+Pkbl&>IO)W?P)Aj^KC'
 # Uploaded media uses these `filestore` settings. The available
 # backends are either `filesystem` or `s3`.
 
-filestore.backend: 'filesystem'
-filestore.options:
-  location: '/data/files'
-dsym.cache-path: '/data/dsym-cache'
-releasefile.cache-path: '/data/releasefile-cache'
+# filestore.backend: 'filesystem'
+# filestore.options:
+#   location: '/tmp/sentry-files'
 
 # filestore.backend: 's3'
 # filestore.options:
 #   access_key: 'AKIXXXXXX'
 #   secret_key: 'XXXXXXX'
 #   bucket_name: 's3-bucket-name'
-
-system.internal-url-prefix: 'http://web:9000'
-symbolicator.enabled: true
-symbolicator.options:
-  url: "http://symbolicator:3021"
-
-transaction-events.force-disable-internal-project: true
