@@ -115,8 +115,8 @@ class CloudflareAccessAuthMiddleware:
     def _get_token_payload_from_request(self, request):
         """
         Returns:
-            Token paylod (claims) or None if the decode failed or 
-            no token is present.
+            Token paylod (claims) or None if no token is present.
+            In case of invalid JWT a exception is raised.
         """
         token = ''
         if 'CF_Authorization' in request.COOKIES:
@@ -125,6 +125,7 @@ class CloudflareAccessAuthMiddleware:
             return None
         keys = self._get_public_keys()
 
+        error_messages = set()
         for key in keys:
             try:
                 t = jwt.decode(token, key=key, audience=settings.CLOUDFLARE_ACCESS_POLICY_AUD)
@@ -132,9 +133,11 @@ class CloudflareAccessAuthMiddleware:
                 logger.debug(t)
                 return t
             except Exception as e:
-                raise JWTValidationException("Unable to validate JWT: %s" % e.message)
+                logger.debug("Unable to validate JWT: %s" % e.message)
+                error_messages.add(e.message)
+                pass
 
-        return None
+        raise JWTValidationException("Unable to validate JWT: %s" % ", ".join(error_messages))
 
 
     def _get_public_keys(self):
