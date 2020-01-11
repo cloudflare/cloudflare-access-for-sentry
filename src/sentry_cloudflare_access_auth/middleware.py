@@ -15,10 +15,12 @@ from sentry.web.helpers import render_to_response
 from sentry_cloudflare_access_auth.backend import MultipleUsersMatchingEmailException, UserIsNotActiveException
 
 logger = logging.getLogger(__name__)
+#logger.setLevel('DEBUG')
 
 static_resources_extension = ["js", "css", "png", "jpg", "jpeg", "woff", "ttf"]
 
 cf_sentry_logout_cookie_name = "cf_sentry_logout"
+cf_sentry_default_flow_cookie_name = "cf_sentry_default_flow"
 
 class CloudflareAccessAuthMiddleware:
     _certs_url = "https://{}/cdn-cgi/access/certs".format(settings.CLOUDFLARE_ACCESS_AUTH_DOMAIN)
@@ -78,6 +80,14 @@ class CloudflareAccessAuthMiddleware:
         logger.debug("response: %s - %s", request.method, request.path)
         if request.path == "/api/0/auth/" and request.method == 'DELETE':
             response.set_cookie(cf_sentry_logout_cookie_name, "1")
+        
+        if self._should_go_to_login_form(request):
+            response.set_cookie(cf_sentry_default_flow_cookie_name, "1")
+
+        #When authenticated, removes the default flow cookie
+        if self._is_already_authenticated(request):
+            response.delete_cookie(cf_sentry_default_flow_cookie_name)    
+
         return response
 
 
@@ -90,6 +100,7 @@ class CloudflareAccessAuthMiddleware:
         logger.info("redirecting to: %s" % logout_absolute_url)
         redirect_response = redirect(logout_absolute_url)
         redirect_response.delete_cookie(cf_sentry_logout_cookie_name)
+        redirect_response.delete_cookie(cf_sentry_default_flow_cookie_name)
         return redirect_response
 
     def _proceed_with_token_verification(self, request):
@@ -108,6 +119,9 @@ class CloudflareAccessAuthMiddleware:
             return False
 
         if self._is_already_authenticated(request):
+            return False
+
+        if cf_sentry_default_flow_cookie_name in request.COOKIES and request.COOKIES[cf_sentry_default_flow_cookie_name] == "1":
             return False
 
         return True
@@ -156,15 +170,21 @@ class CloudflareAccessAuthMiddleware:
 
 
     def _is_already_authenticated(self, request):
-        if request.user == None:
-            return False
+        #Try checking the user, which may not exist in the request
+        try:
+            logger.info("authenticated user: %s" % request.user)
+            logger.info("authenticated user ok: %s" % request.user.is_authenticated())
+            if request.user == None:
+                return False
 
-        return True
+            return request.user.is_authenticated()
+        except:
+            return False
 
 
     def _should_go_to_login_form(self, request):
         should_go_to_login = 'goToLogin' in request.GET
-        logger.debug("query string: %s" % should_go_to_login)
+        logger.debug("should_go_to_login: %s" % should_go_to_login)
         return should_go_to_login
 
 
