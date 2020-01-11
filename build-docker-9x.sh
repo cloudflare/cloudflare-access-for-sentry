@@ -12,7 +12,7 @@ python setup.py sdist bdist_wheel
 
 cd ..
 
-cp src/dist/$WHL_FILENAME $SENTRY_DC_PREFIX/sentry/$TARGET_WHL_FILENAME
+cp src/dist/$WHL_FILENAME $SENTRY_DC_PREFIX/$TARGET_WHL_FILENAME
 
 cd $SENTRY_DC_PREFIX/
 
@@ -23,6 +23,6 @@ docker-compose up -d
 
 cd ..
 
-rm -v $SENTRY_DC_PREFIX/sentry/$TARGET_WHL_FILENAME
+rm -v $SENTRY_DC_PREFIX/$TARGET_WHL_FILENAME
 
 echo "sentry-cloudflare-access-auth build finished!"
