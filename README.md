@@ -89,4 +89,6 @@ To reload the plugin code:
 
 ### Django version
 
-Note that Sentry is based on `Django 1.9` .
+Sentry 9.x is based on `Django 1.7` .
+
+Sentry 10.x is based on `Django 1.9` .
