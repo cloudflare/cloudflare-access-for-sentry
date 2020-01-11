@@ -4,9 +4,18 @@ Repository for Cloudflare Access for Sentry plugin development.
 
 ## Install on your On-Premise Sentry instance
 
-To enable this plugin on your On-Premise installation of Sentry add the following to your `sentry.conf.py`:
+To enable this plugin on your On-Premise installation of Sentry you need to install via `pip` and update your `sentry.conf.py`
 
-### For Sentry 9.x
+The Access *Audience* and *Auth Domain* may be set in your OS environment or directly in Sentry conf file.
+
+### Install with `pip`
+
+```
+pip install git+https://github.com/cloudflare/cloudflare-access-for-sentry@master#egg=cloudflare-access-for-sentry
+```
+
+
+### Configuration For Sentry 9.x
 
 ```
 ####################################################
@@ -23,7 +32,7 @@ CLOUDFLARE_ACCESS_AUTH_DOMAIN = os.getenv("CF_AUTH_DOMAIN")
 #CLOUDFLARE_ACCESS_ALLOWED_DOMAIN = None
 ```
 
-### For Sentry 10.x
+### Configuration For Sentry 10.x
 
 ```
 ####################################################
@@ -55,12 +64,18 @@ If you want to have code completion on your IDE probably is a good idea to also 
 pip install 'django<1.10'
 ```
 
-Create a `sentry-docker/sentry.env` file with your Cloudflare Access test credentials based on the `sentry-docker/sentry.example.env`.
+Create a `sentry-docker-9x/.env` and `sentry-docker-10x/sentry.env` files with your Cloudflare Access test credentials like:
+
+```
+CF_POLICY_AUD="YOUR POLICY AUDIENCE VALUE"
+CF_AUTH_DOMAIN="YOUR ACCESS LOGIN PAGE DOMAIN"
+```
 
 Prepare your Sentry on Docker environment:
 
 ```
-cd sentry-docker
+#Or replace 9x with 10x
+cd sentry-docker-9x
 ./install.sh
 docker-compose up -d
 ```
@@ -68,7 +83,8 @@ docker-compose up -d
 To reload the plugin code:
 
 ```
-./build-docker.sh
+#Or replace 9x with 10x
+./build-docker-9x.sh
 ```
 
 ### Django version
