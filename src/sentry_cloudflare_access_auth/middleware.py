@@ -54,12 +54,7 @@ class CloudflareAccessAuthMiddleware:
             user_email = "" if not u'email' in token else token[u'email']
             logger.info("Token user_email: %s", user_email)
 
-            if self._is_already_authenticated(request, user_email):
-                return None
             
-            if self._should_go_to_login_form(request):
-                return None
-
             try:
                 user = authenticate(email=user_email, jwt_validated=True)
             except MultipleUsersMatchingEmailException:
@@ -109,6 +104,12 @@ class CloudflareAccessAuthMiddleware:
             logger.debug("Skipping middleware for static resources, extension: %s" % extension)
             return False
 
+        if self._should_go_to_login_form(request):
+            return False
+
+        if self._is_already_authenticated(request):
+            return False
+
         return True
 
 
@@ -154,11 +155,8 @@ class CloudflareAccessAuthMiddleware:
         return public_keys
 
 
-    def _is_already_authenticated(self, request, user_email):
+    def _is_already_authenticated(self, request):
         if request.user == None:
-            return False
-
-        if request.user.username != user_email:
             return False
 
         return True
