@@ -1,0 +1,4 @@
+python_jwt
+pyOpenSSL
+flask
+flask_restful

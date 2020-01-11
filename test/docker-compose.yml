@@ -1,0 +1,32 @@
+version: '3.4'
+
+x-defaults: &defaults
+  networks:
+   - sentry-docker-9x_default
+
+services:
+  selenium_server:
+    <<: *defaults
+    image: selenium/standalone-firefox
+    volumes:
+    - /dev/shm:/dev/shm
+
+  cloudflare_mock_server:
+    <<: *defaults
+    build: ./mock_server
+
+  securesentry: 
+    <<: *defaults
+    build: ./nginx_ssl_proxy
+    ports:
+      - 8080:80
+      - 8443:443
+
+  selenium_test:
+    <<: *defaults
+    build: ./selenium_test
+
+  
+networks:
+  sentry-docker-9x_default:
+    external: true

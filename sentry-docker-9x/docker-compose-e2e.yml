@@ -1,0 +1,7 @@
+version: '3.4'
+
+services:
+  web:
+    env_file: e2e.env
+    volumes:
+    - ./proxy.crt:/e2e/cabundle/proxy.crt
