@@ -96,6 +96,10 @@ To reload the plugin code:
 ./build-docker-9x.sh
 ```
 
+### Running tests
+
+Just execute `test.sh` to run the e2e test suite.
+
 ### Django version
 
 Sentry 9.x is based on `Django 1.7` .

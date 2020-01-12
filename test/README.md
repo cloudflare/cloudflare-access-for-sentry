@@ -8,13 +8,6 @@ Prerequisites:
 
 - Docker
 
-Running:
-
-```
-./run_test.sh
-```
-
-
 ## Docker compose services architecture:
 
 - `cloudflare_mock_server`: Simulates Cloudflare Access behavior by generating a signed JWT and provides the certificates for Sentry to validate.
