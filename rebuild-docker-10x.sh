@@ -14,6 +14,4 @@ docker-compose up -d
 
 cd ..
 
-rm -v $SENTRY_DC_PREFIX/sentry/*.whl
-
 echo "sentry-docker 10x rebuilt!"

@@ -13,6 +13,4 @@ docker-compose up -d --build
 
 cd ..
 
-rm -v $SENTRY_DC_PREFIX/*.whl
-
 echo "sentry-docker 9x rebuilt!"
