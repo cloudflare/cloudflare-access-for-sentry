@@ -7,6 +7,7 @@ from django.contrib.auth.backends import ModelBackend
 from sentry.utils.auth import find_users
 
 logger = logging.getLogger(__name__)
+#logger.setLevel('DEBUG')
 
 class CloudflareAccessBackend(ModelBackend):
     def authenticate(self, email=None, jwt_validated=False):
@@ -23,8 +24,8 @@ class CloudflareAccessBackend(ModelBackend):
         logger.debug("Users found: %s", [u.username for u in users])
 
         if len(users) == 0:
-            logger.debug("User not found, maybe registration step...")
-            return None
+            logger.debug("User not found...")
+            raise UserNotFoundException("User with email {0} not found".format(email))
 
         if len(users) > 1:
             logger.debug("More than one user matches '%s': %s", email, len(users))
@@ -69,4 +70,7 @@ class MultipleUsersMatchingEmailException(Exception):
 
 
 class UserIsNotActiveException(Exception):
+    pass
+
+class UserNotFoundException(Exception):
     pass

@@ -12,7 +12,7 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
 from sentry.web.helpers import render_to_response
 
-from sentry_cloudflare_access_auth.backend import MultipleUsersMatchingEmailException, UserIsNotActiveException
+from sentry_cloudflare_access_auth.backend import MultipleUsersMatchingEmailException, UserIsNotActiveException, UserNotFoundException
 
 logger = logging.getLogger(__name__)
 #logger.setLevel('DEBUG')
@@ -66,6 +66,10 @@ class CloudflareAccessAuthMiddleware:
             except UserIsNotActiveException:
                 return self._render_error(request, (
                     "The user is currently disabled"
+                ))
+            except UserNotFoundException as e:
+                return self._render_error(request, (
+                    e.message
                 ))
             else:
                 if not user == None:
