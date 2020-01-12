@@ -4,8 +4,8 @@ set -e
 TEST_PWD=`pwd`
 DC_SENTRY="sentry-docker-9x"
 DC_PROJ_NAME=$DC_SENTRY"-e2e"
-SENTRY_COMPOSE="docker-compose -f ../$DC_SENTRY/docker-compose.yml -f ../$DC_SENTRY/docker-compose-e2e.yml "
-
+SENTRY_COMPOSE="docker-compose -f $DC_SENTRY/docker-compose.yml -f $DC_SENTRY/docker-compose-e2e.yml "
+TEST_COMPOSE="docker-compose -f test/docker-compose.yml "
 
 sentry_compose_cleanup () {
     #cleanup sentry with compose
@@ -17,14 +17,17 @@ sentry_compose_cleanup () {
 
 sentry_compose_cleanup
 
+# packages the plugin
+./build-package.sh
+
 # install sentry for running the e2e suite
-cd ../$DC_SENTRY
+cd $DC_SENTRY
 ./install-noinput.sh
 cd $TEST_PWD
 
 $SENTRY_COMPOSE up -d
 
-docker-compose down
-docker-compose up --exit-code-from selenium_test --build
+$TEST_COMPOSE down
+$TEST_COMPOSE up --exit-code-from selenium_test --build
 
 sentry_compose_cleanup

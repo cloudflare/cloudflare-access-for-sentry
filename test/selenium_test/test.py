@@ -23,6 +23,23 @@ class SentryPluginEndToEndTest(unittest.TestCase):
         sidebar_dropdown = driver.find_element_by_css_selector('[data-test-id="sidebar-dropdown"]')
         assert self.user_email in sidebar_dropdown.text
 
+
+    def test_logout(self):
+        driver = self.driver
+        
+        driver.get("http://securesentry/")
+
+        sidebar_dropdown = driver.find_element_by_css_selector('[data-test-id="sidebar-dropdown"]')
+        sidebar_dropdown.click()
+
+        signout_elm = driver.find_element_by_css_selector('[data-test-id="sidebarSignout"]')
+        signout_elm.click()
+
+        print("000000000000000000000000000000000000000")
+        print(driver.page_source)
+        # Assertion on the mock server result
+        assert "Logout succesful" in driver.page_source
+
     #TODO test logout
 
     def tearDown(self):

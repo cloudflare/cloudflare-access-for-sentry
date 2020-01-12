@@ -54,8 +54,14 @@ class Authenticate(Resource):
             "iss": "securesentry",
         }
 
+class Logout(Resource):
+    def get(self):
+        return "Logout succesful"
+
 api.add_resource(CloudflareAccessCertificates, '/cdn-cgi/access/certs')
 api.add_resource(Authenticate, '/cdn-cgi/access/auth')
+api.add_resource(Logout, '/cdn-cgi/access/logout')
+
 
 if __name__ == '__main__':
     app.run(ssl_context='adhoc', debug=True, host='0.0.0.0')
