@@ -98,7 +98,21 @@ To reload the plugin code:
 
 ### Running tests
 
-Just execute `test.sh` to run the e2e test suite.
+Running tests for Sentry 9.x:
+
+```
+./test.sh -t 9
+```
+
+Running tests for Sentry 10.x:
+```
+./test.sh -t 10
+```
+
+Cleanup tests for 9.x or 10.x:
+```
+./test.sh -t 10 -c
+```
 
 ### Django version
 
