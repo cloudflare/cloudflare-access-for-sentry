@@ -1,13 +1,15 @@
-version: '3.4'
+version: '3.5'
 
 x-defaults: &defaults
   networks:
-   - sentry-docker-9x_default
+   - sentry_network
 
 services:
   selenium_server:
     <<: *defaults
-    image: selenium/standalone-firefox
+    image: selenium/standalone-firefox-debug
+    ports:
+      - 15900:5900
     volumes:
     - /dev/shm:/dev/shm
 
@@ -28,5 +30,6 @@ services:
 
   
 networks:
-  sentry-docker-9x_default:
+  sentry_network:
     external: true
+    name: ${SENTRY_EXTERNAL_NETWORK_NAME}
