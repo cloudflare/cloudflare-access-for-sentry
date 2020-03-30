@@ -10,12 +10,6 @@ The Access *Audience* and *Auth Domain* may be set in your OS environment or dir
 
 ### Install with `pip`
 
-While the repository is **private** run with your Github SSH keys set:
-
-```
-pip install "git+ssh://git@github.com/cloudflare/cloudflare-access-for-sentry.git@master#egg=sentry_cloudflare_access_auth&subdirectory=src"
-```
-
 When it become public can change to:
 
 ```
